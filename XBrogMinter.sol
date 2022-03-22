@@ -747,10 +747,10 @@ contract NftMintingStation {
 pragma solidity ^0.8.0;
 
 /**
- * @title VispX Minter
+ * @title NFT Minter
  * @notice VispX Minting Station
  */
-contract VispXMinter is NftMintingStation, Ownable {
+contract NFTMinter is NftMintingStation, Ownable {
 
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
@@ -769,7 +769,7 @@ contract VispXMinter is NftMintingStation, Ownable {
     uint256[20] public _TokenClassID = [1,301,520,756,1008,1244,1496,1732,2401,2632,2863,3094,3354,3585,3845,4076,4307,4567,4798,5058];
     uint256[20] public _TotalClassSupply;
 
-    mapping(address => uint256) private UserMints;
+    mapping(address => uint256) public UserMints;
 
     constructor(INftCollection _collection, IERC20 _TokenAddress) NftMintingStation(_collection) {
         USDC = _TokenAddress;
@@ -801,11 +801,11 @@ contract VispXMinter is NftMintingStation, Ownable {
         if(PublicsaleIsActive == false) {
             require(_WL > 0, "ERC721: You're not in WhiteList");
         }
-        require(saleIsActive, 'Sale is not active at the moment');
+        require(saleIsActive, "Sale is not active at the moment");
 
-        if (_WL == 1) NET_PRICE = (NFT_PRICE * (100 - 10))/100;  // WL = 1 mean 10% Discount
-        else if (_WL == 2) NET_PRICE = (NFT_PRICE * (100 - 20))/100;  // WL = 2 mean 20% Discount
-        else NET_PRICE = (NFT_PRICE * (100 - 0))/100;  // WL = any mean 0% Discount
+        //if (_WL == 1) NET_PRICE = (NFT_PRICE * (100 - 10))/100;  // WL = 1 mean 10% Discount
+        //else if (_WL == 2) NET_PRICE = (NFT_PRICE * (100 - 20))/100;  // WL = 2 mean 20% Discount
+        //else NET_PRICE = (NFT_PRICE * (100 - 0))/100;  // WL = any mean 0% Discount
 
         //uint256 userBalance = USDC.balanceOf(msg.sender);
         //uint256 totalCost = NET_PRICE * _quantity;

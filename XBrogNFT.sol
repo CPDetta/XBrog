@@ -1209,7 +1209,7 @@ contract XBrog is Ownable, IERC2981, ERC721, MinterAccess {
     /**
      * @notice Constructor
      */
-    constructor() ERC721("X_Test", "Test") {
+    constructor() ERC721("X_Test", "XB") {
         maxSupply = 6000;
     }
 
@@ -1278,7 +1278,7 @@ contract XBrog is Ownable, IERC2981, ERC721, MinterAccess {
     }
 
     function contractURI() public view returns (string memory) {
-        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, "Main.json")) : "";
+        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, "XBrog.json")) : "";
     }
 
     function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view override returns (address, uint256 royaltyAmount) {
