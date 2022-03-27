@@ -756,14 +756,14 @@ contract NFTMinter is NftMintingStation, Ownable {
     using SafeERC20 for IERC20;
 
     uint256 public constant NFT_PRICE = 1000000000000000000; // 1 USDC
-    uint256 public NET_PRICE;
+    uint256 private NET_PRICE;
     bool public saleIsActive = true;
     bool public PublicsaleIsActive = true;
     IERC20 public USDC; // USDC token
     uint256 public MaxSupply;
     uint256 public TotalSupply;
-    uint256 public MaxMint = 10;
-    uint256 public TokenID;
+    uint256 public MaxMint = 8;
+    uint256 private TokenID;
 
     uint256[20] public _MaxClassSupply = [240,219,236,252,236,252,236,249,231,231,231,260,231,260,231,231,260,231,260,223];
     uint256[20] public _TokenClassID = [1,301,520,756,1008,1244,1496,1732,2401,2632,2863,3094,3354,3585,3845,4076,4307,4567,4798,5058];
@@ -773,6 +773,7 @@ contract NFTMinter is NftMintingStation, Ownable {
 
     constructor(INftCollection _collection, IERC20 _TokenAddress) NftMintingStation(_collection) {
         USDC = _TokenAddress;
+        NET_PRICE = NFT_PRICE;
     }
 
     function flipSaleState() public onlyOwner {
@@ -807,10 +808,10 @@ contract NFTMinter is NftMintingStation, Ownable {
         //else if (_WL == 2) NET_PRICE = (NFT_PRICE * (100 - 20))/100;  // WL = 2 mean 20% Discount
         //else NET_PRICE = (NFT_PRICE * (100 - 0))/100;  // WL = any mean 0% Discount
 
-        //uint256 userBalance = USDC.balanceOf(msg.sender);
-        //uint256 totalCost = NET_PRICE * _quantity;
-        //require(totalCost <= userBalance, "User balance is not enough");
-        //USDC.safeTransferFrom(msg.sender, address(this), totalCost);
+        uint256 userBalance = USDC.balanceOf(msg.sender);
+        uint256 totalCost = NET_PRICE * _quantity;
+        require(totalCost <= userBalance, "User balance is not enough");
+        USDC.safeTransferFrom(msg.sender, address(this), totalCost);
         for (uint256 i = 0; i < _quantity; i++)
         {
             TokenID = getTokenId();

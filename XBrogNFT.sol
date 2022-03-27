@@ -1689,7 +1689,7 @@ contract XBrog is Ownable, IERC2981, ERC721, MinterAccess, TokenStake {
     /**
      * @notice Constructor
      */
-    constructor() ERC721("X_Test", "XB") {
+    constructor() ERC721("XBrogNFT", "XBROG") {
         maxSupply = 6000;
     }
 
