@@ -1026,6 +1026,19 @@ contract ERC721A is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable
         return tokenId < currentIndex;
     }
 
+    /**
+     * @dev Returns whether `spender` is allowed to manage `tokenId`.
+     *
+     * Requirements:
+     *
+     * - `tokenId` must exist.
+     */
+    function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {
+        require(_exists(tokenId), "ERC721: operator query for nonexistent token");
+        address owner = ERC721A.ownerOf(tokenId);
+        return (spender == owner || isApprovedForAll(owner, spender) || getApproved(tokenId) == spender);
+    }
+
     function _safeMint(address to, uint256 quantity) internal {
         _safeMint(to, quantity, "");
     }
@@ -1095,7 +1108,6 @@ contract ERC721A is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable
         isApprovedForAll(prevOwnership.addr, _msgSender()));
 
         require(isApprovedOrOwner, "ERC721A: transfer caller is not owner nor approved");
-
         require(prevOwnership.addr == from, "ERC721A: transfer from incorrect owner");
         require(to != address(0), "ERC721A: transfer to the zero address");
 
@@ -1239,7 +1251,6 @@ contract ERC721A is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable
 }
 
 // OpenZeppelin Contracts v4.4.1 (utils/structs/EnumerableSet.sol)
-
 pragma solidity ^0.8.0;
 
 /**
@@ -1648,7 +1659,7 @@ abstract contract TokenStake is Ownable, ERC721A {
      * The owner of the token must approve the staking contract prior to call this method
      */
     function stakeToken(uint256 tokenId) external tokenStakersOnly whenTokenNotStaked(tokenId) {
-        //require(_isApprovedOrOwner(_msgSender(), tokenId), "TokenStake: Staker not approved");
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "TokenStake: Staker not approved");
         _stakedTokens[tokenId] = _msgSender();
         emit TokenStaked(_msgSender(), tokenId);
     }
@@ -1718,28 +1729,42 @@ abstract contract TokenStake is Ownable, ERC721A {
     }
 }
 
+
+pragma solidity ^0.8.0;
+
+interface INftCollection {
+     /**
+     * @dev Stake Token
+     */
+    function stakeToken(uint256 tokenId) external;
+
+    /**
+     * @dev Unstake Token
+     */
+    function unstakeToken(uint256 tokenId) external;
+
+    /**
+     * @dev return Token stake status
+     */
+    function isTokenStaked(uint256 tokenId) external view returns (bool);
+}
+
 pragma solidity ^0.8.0;
 
 contract XBorg is Ownable, IERC2981, ERC721A, ReentrancyGuard, TokenStake {
-    uint256 public immutable MaxMintPerWallet;
-    uint256 public constant NFT_PRICE = 0 ether; //100000000000000000
+    uint256 public MaxMintPerWallet = 8;
+    uint256 public MaxSupply = 6000;
+    uint256 public constant NFT_PRICE = 0.01 ether; // 10000000000000000
     address public royalties;
+    bool public saleIsActive = false;
+    bool public PublicsaleIsActive = false;
+    uint32 private publicSaleKey;
+    string private _baseTokenURI;
 
-    struct SaleConfig {
-        bool saleIsActive;
-        bool PublicsaleIsActive;
-        uint32 publicSaleKey;
-    }
+    event Withdraw(uint256 amount);
 
-    SaleConfig public saleConfig;
-
-    mapping(address => uint256) public allowlist;
-
-    constructor(
-        uint256 maxBatchSize_,
-        uint256 collectionSize_
-    ) ERC721A("Xxxxxx", "XXXXXX", maxBatchSize_, collectionSize_) {
-        MaxMintPerWallet = maxBatchSize_;
+    constructor(uint32 SetpublicSaleKey) ERC721A("XBorg", "XBORG", MaxMintPerWallet, MaxSupply) {
+        publicSaleKey = SetpublicSaleKey;
     }
 
     modifier callerIsUser() {
@@ -1748,24 +1773,22 @@ contract XBorg is Ownable, IERC2981, ERC721A, ReentrancyGuard, TokenStake {
     }
 
     function flipSaleState() public onlyOwner {
-        saleConfig.saleIsActive = !saleConfig.saleIsActive;
+        saleIsActive = !saleIsActive;
     }
 
     function flipPublicSaleState() public onlyOwner {
-        saleConfig.PublicsaleIsActive = !saleConfig.PublicsaleIsActive;
+        PublicsaleIsActive = !PublicsaleIsActive;
     }
 
-    function Mint(uint256 _Quantity, uint256 _WL, uint256 _CallerPublicSaleKey)
+    function mint(uint256 _Quantity, uint256 _WL, uint256 _CallerPublicSaleKey)
         external
         payable
         callerIsUser
     {
-        SaleConfig memory config = saleConfig;
-        uint256 publicSaleKey = uint256(config.publicSaleKey);
         uint256 NET_PRICE = NFT_PRICE;
 
-        require(config.saleIsActive, "Sale is not active at the moment");
-        if(config.PublicsaleIsActive == false) {
+        require(saleIsActive, "Sale is not active at the moment");
+        if(PublicsaleIsActive == false) {
             require(_WL > 0, "You're not in WhiteList");
             if (_WL == 1) NET_PRICE = (NFT_PRICE * (100 - 0))/100;  // WL = 1 mean 0% Discount
             else if (_WL == 2) NET_PRICE = (NFT_PRICE * (100 - 10))/100;  // WL = 2 mean 10% Discount
@@ -1778,9 +1801,14 @@ contract XBorg is Ownable, IERC2981, ERC721A, ReentrancyGuard, TokenStake {
         _safeMint(msg.sender, _Quantity);
     }
 
-    /**
-     * @dev transfer only tokens that are not staked
-     */
+    function Ownermint(uint256 _Quantity)
+        external
+        onlyOwner
+    {     
+        require(totalSupply() + _Quantity <= collectionSize, "Supply over the supply limit");
+        _safeMint(msg.sender, _Quantity);
+    }
+
     function _transfer(
         address from,
         address to,
@@ -1789,12 +1817,16 @@ contract XBorg is Ownable, IERC2981, ERC721A, ReentrancyGuard, TokenStake {
         super._transfer(from, to, tokenId);
     }
 
-    function setPublicSaleKey(uint32 key) external onlyOwner {
-        saleConfig.publicSaleKey = key;
+    function burn(       
+        uint256 tokenId
+    ) public {
+        address to = 0x000000000000000000000000000000000000dEaD;
+        safeTransferFrom(msg.sender, to, tokenId, "");
     }
 
-    // // metadata URI
-    string private _baseTokenURI;
+    function setPublicSaleKey(uint32 key) external onlyOwner {
+        publicSaleKey = key;
+    }
 
     function _baseURI() internal view virtual override returns (string memory) {
         return _baseTokenURI;
@@ -1804,9 +1836,9 @@ contract XBorg is Ownable, IERC2981, ERC721A, ReentrancyGuard, TokenStake {
         _baseTokenURI = baseURI;
     }
 
-    function withdrawMoney() external onlyOwner nonReentrant {
-        (bool success, ) = msg.sender.call{value: address(this).balance}("");
-        require(success, "Transfer failed.");
+    function withdraw() external onlyOwner {
+        payable(owner()).transfer(address(this).balance);
+        emit Withdraw(address(this).balance);
     }
 
     function setOwnersExplicit(uint256 quantity) external onlyOwner nonReentrant {
