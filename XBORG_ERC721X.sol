@@ -1966,13 +1966,15 @@ contract XBorg is Ownable, IERC2981, ERC721X, ReentrancyGuard, TokenStake {
     bool public PublicsaleIsActive = false;
     uint32 private publicSaleKey;
     string private _baseTokenURI;
+    uint256 private WL_Class;
     address private WithDrawWallet1;
     address private WithDrawWallet2;
 
     event Withdraw(uint256 amount);
 
-    constructor(uint32 SetpublicSaleKey) ERC721X("XBorg", "XBORG", MaxBatchSize, MaxSupply) {
+    constructor(uint32 SetpublicSaleKey, uint32 SetWL_Class) ERC721X("XBorg", "XBORG", MaxBatchSize, MaxSupply) {
         publicSaleKey = SetpublicSaleKey;
+        WL_Class = SetWL_Class;
         WithDrawWallet1 = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
         WithDrawWallet2 = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
     }
@@ -1995,7 +1997,7 @@ contract XBorg is Ownable, IERC2981, ERC721X, ReentrancyGuard, TokenStake {
     function mint(uint256 _Quantity, uint256 _WL, uint256 _CallerPublicSaleKey) external payable callerIsUser {
         require(saleIsActive, "Sale is not active at the moment");
         if(PublicsaleIsActive == false) {
-            require(_WL > 0, "You're not in WhiteList");
+            require(_WL == WL_Class, "You're not in WhiteList");
         }     
         require(publicSaleKey == _CallerPublicSaleKey, "Called with incorrect public sale key");
         require(totalSupply() + _Quantity <= MaxMintSupply, "Supply over the mint supply limit");
