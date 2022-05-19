@@ -259,6 +259,232 @@ library Address {
     }
 }
 
+// OpenZeppelin Contracts (last updated v4.6.0) (utils/math/SafeMath.sol)
+pragma solidity ^0.8.0;
+
+// CAUTION
+// This version of SafeMath should only be used with Solidity 0.8 or later,
+// because it relies on the compiler's built in overflow checks.
+
+/**
+ * @dev Wrappers over Solidity's arithmetic operations.
+ *
+ * NOTE: `SafeMath` is generally not needed starting with Solidity 0.8, since the compiler
+ * now has built in overflow checking.
+ */
+library SafeMath {
+    /**
+     * @dev Returns the addition of two unsigned integers, with an overflow flag.
+     *
+     * _Available since v3.4._
+     */
+    function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            uint256 c = a + b;
+            if (c < a) return (false, 0);
+            return (true, c);
+        }
+    }
+
+    /**
+     * @dev Returns the subtraction of two unsigned integers, with an overflow flag.
+     *
+     * _Available since v3.4._
+     */
+    function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            if (b > a) return (false, 0);
+            return (true, a - b);
+        }
+    }
+
+    /**
+     * @dev Returns the multiplication of two unsigned integers, with an overflow flag.
+     *
+     * _Available since v3.4._
+     */
+    function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
+            // benefit is lost if 'b' is also tested.
+            // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
+            if (a == 0) return (true, 0);
+            uint256 c = a * b;
+            if (c / a != b) return (false, 0);
+            return (true, c);
+        }
+    }
+
+    /**
+     * @dev Returns the division of two unsigned integers, with a division by zero flag.
+     *
+     * _Available since v3.4._
+     */
+    function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            if (b == 0) return (false, 0);
+            return (true, a / b);
+        }
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers, with a division by zero flag.
+     *
+     * _Available since v3.4._
+     */
+    function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            if (b == 0) return (false, 0);
+            return (true, a % b);
+        }
+    }
+
+    /**
+     * @dev Returns the addition of two unsigned integers, reverting on
+     * overflow.
+     *
+     * Counterpart to Solidity's `+` operator.
+     *
+     * Requirements:
+     *
+     * - Addition cannot overflow.
+     */
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a + b;
+    }
+
+    /**
+     * @dev Returns the subtraction of two unsigned integers, reverting on
+     * overflow (when the result is negative).
+     *
+     * Counterpart to Solidity's `-` operator.
+     *
+     * Requirements:
+     *
+     * - Subtraction cannot overflow.
+     */
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a - b;
+    }
+
+    /**
+     * @dev Returns the multiplication of two unsigned integers, reverting on
+     * overflow.
+     *
+     * Counterpart to Solidity's `*` operator.
+     *
+     * Requirements:
+     *
+     * - Multiplication cannot overflow.
+     */
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a * b;
+    }
+
+    /**
+     * @dev Returns the integer division of two unsigned integers, reverting on
+     * division by zero. The result is rounded towards zero.
+     *
+     * Counterpart to Solidity's `/` operator.
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a / b;
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
+     * reverting when dividing by zero.
+     *
+     * Counterpart to Solidity's `%` operator. This function uses a `revert`
+     * opcode (which leaves remaining gas untouched) while Solidity uses an
+     * invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a % b;
+    }
+
+    /**
+     * @dev Returns the subtraction of two unsigned integers, reverting with custom message on
+     * overflow (when the result is negative).
+     *
+     * CAUTION: This function is deprecated because it requires allocating memory for the error
+     * message unnecessarily. For custom revert reasons use {trySub}.
+     *
+     * Counterpart to Solidity's `-` operator.
+     *
+     * Requirements:
+     *
+     * - Subtraction cannot overflow.
+     */
+    function sub(
+        uint256 a,
+        uint256 b,
+        string memory errorMessage
+    ) internal pure returns (uint256) {
+        unchecked {
+            require(b <= a, errorMessage);
+            return a - b;
+        }
+    }
+
+    /**
+     * @dev Returns the integer division of two unsigned integers, reverting with custom message on
+     * division by zero. The result is rounded towards zero.
+     *
+     * Counterpart to Solidity's `/` operator. Note: this function uses a
+     * `revert` opcode (which leaves remaining gas untouched) while Solidity
+     * uses an invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function div(
+        uint256 a,
+        uint256 b,
+        string memory errorMessage
+    ) internal pure returns (uint256) {
+        unchecked {
+            require(b > 0, errorMessage);
+            return a / b;
+        }
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
+     * reverting with custom message when dividing by zero.
+     *
+     * CAUTION: This function is deprecated because it requires allocating memory for the error
+     * message unnecessarily. For custom revert reasons use {tryMod}.
+     *
+     * Counterpart to Solidity's `%` operator. This function uses a `revert`
+     * opcode (which leaves remaining gas untouched) while Solidity uses an
+     * invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function mod(
+        uint256 a,
+        uint256 b,
+        string memory errorMessage
+    ) internal pure returns (uint256) {
+        unchecked {
+            require(b > 0, errorMessage);
+            return a % b;
+        }
+    }
+}
+
 // OpenZeppelin Contracts v4.4.1 (utils/Strings.sol)
 pragma solidity ^0.8.0;
 
@@ -729,7 +955,7 @@ pragma solidity ^0.8.0;
  *
  * Does not support burning tokens to address(0).
  */
-contract ERC721A is Context, ERC165, IERC721, IERC721Metadata {
+contract ERC721X is Context, ERC165, IERC721, IERC721Metadata {
     using Address for address;
     using Strings for uint256;
 
@@ -779,8 +1005,8 @@ contract ERC721A is Context, ERC165, IERC721, IERC721Metadata {
         uint256 maxBatchSize_,
         uint256 collectionSize_
     ) {
-        require(collectionSize_ > 0, "ERC721A: collection must have a nonzero supply");
-        require(maxBatchSize_ > 0, "ERC721A: max batch size must be nonzero");
+        require(collectionSize_ > 0, "ERC721X: collection must have a nonzero supply");
+        require(maxBatchSize_ > 0, "ERC721X: max batch size must be nonzero");
         _name = name_;
         _symbol = symbol_;
         maxBatchSize = maxBatchSize_;
@@ -808,17 +1034,17 @@ contract ERC721A is Context, ERC165, IERC721, IERC721Metadata {
     * @dev See {IERC721-balanceOf}.
     */
     function balanceOf(address owner) public view override returns (uint256) {
-        require(owner != address(0), "ERC721A: balance query for the zero address");
+        require(owner != address(0), "ERC721X: balance query for the zero address");
         return uint256(_addressData[owner].balance);
     }
 
     function _numberMinted(address owner) internal view returns (uint256) {
-        require(owner != address(0), "ERC721A: number minted query for the zero address");
+        require(owner != address(0), "ERC721X: number minted query for the zero address");
         return uint256(_addressData[owner].numberMinted);
     }
 
     function ownershipOf(uint256 tokenId) internal view returns (TokenOwnership memory) {
-        require(_exists(tokenId), "ERC721A: owner query for nonexistent token");
+        require(_exists(tokenId), "ERC721X: owner query for nonexistent token");
         uint256 lowestTokenToCheck;
         if (tokenId >= maxBatchSize) {
             lowestTokenToCheck = tokenId - maxBatchSize + 1;
@@ -830,7 +1056,7 @@ contract ERC721A is Context, ERC165, IERC721, IERC721Metadata {
                 return ownership;
             }
         }
-        revert("ERC721A: unable to determine the owner of token");
+        revert("ERC721X: unable to determine the owner of token");
     }
 
     /**
@@ -876,9 +1102,9 @@ contract ERC721A is Context, ERC165, IERC721, IERC721Metadata {
     * @dev See {IERC721-approve}.
     */
     function approve(address to, uint256 tokenId) public override {
-        address owner = ERC721A.ownerOf(tokenId);
-        require(to != owner, "ERC721A: approval to current owner");
-        require(_msgSender() == owner || isApprovedForAll(owner, _msgSender()),"ERC721A: approve caller is not owner nor approved for all");
+        address owner = ERC721X.ownerOf(tokenId);
+        require(to != owner, "ERC721X: approval to current owner");
+        require(_msgSender() == owner || isApprovedForAll(owner, _msgSender()),"ERC721X: approve caller is not owner nor approved for all");
         _approve(to, tokenId, owner);
     }
 
@@ -886,7 +1112,7 @@ contract ERC721A is Context, ERC165, IERC721, IERC721Metadata {
     * @dev See {IERC721-getApproved}.
     */
     function getApproved(uint256 tokenId) public view override returns (address) {
-        require(_exists(tokenId), "ERC721A: approved query for nonexistent token");
+        require(_exists(tokenId), "ERC721X: approved query for nonexistent token");
 
         return _tokenApprovals[tokenId];
     }
@@ -895,7 +1121,7 @@ contract ERC721A is Context, ERC165, IERC721, IERC721Metadata {
     * @dev See {IERC721-setApprovalForAll}.
     */
     function setApprovalForAll(address operator, bool approved) public override {
-        require(operator != _msgSender(), "ERC721A: approve to caller");
+        require(operator != _msgSender(), "ERC721X: approve to caller");
 
         _operatorApprovals[_msgSender()][operator] = approved;
         emit ApprovalForAll(_msgSender(), operator, approved);
@@ -940,7 +1166,7 @@ contract ERC721A is Context, ERC165, IERC721, IERC721Metadata {
         bytes memory _data
     ) public override {
         _transfer(from, to, tokenId);
-        require(_checkOnERC721Received(from, to, tokenId, _data), "ERC721A: transfer to non ERC721Receiver implementer");
+        require(_checkOnERC721Received(from, to, tokenId, _data), "ERC721X: transfer to non ERC721Receiver implementer");
     }
 
     /**
@@ -962,8 +1188,8 @@ contract ERC721A is Context, ERC165, IERC721, IERC721Metadata {
      * - `tokenId` must exist.
      */
     function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {
-        require(_exists(tokenId), "ERC721: operator query for nonexistent token");
-        address owner = ERC721A.ownerOf(tokenId);
+        require(_exists(tokenId), "ERC721X: operator query for nonexistent token");
+        address owner = ERC721X.ownerOf(tokenId);
         return (spender == owner || isApprovedForAll(owner, spender) || getApproved(tokenId) == spender);
     }
 
@@ -988,10 +1214,9 @@ contract ERC721A is Context, ERC165, IERC721, IERC721Metadata {
         bytes memory _data
     ) internal {
         uint256 startTokenId = currentIndex;
-        require(to != address(0), "ERC721A: mint to the zero address");
-        // We know if the first token in the batch doesn't exist, the other ones don't as well, because of serial ordering.
-        require(!_exists(startTokenId), "ERC721A: token already minted");
-        require(quantity <= maxBatchSize, "ERC721A: quantity to mint too high");
+        require(to != address(0), "ERC721X: mint to the zero address");
+        require(!_exists(startTokenId), "ERC721X: token already minted");
+        require(quantity <= maxBatchSize, "ERC721X: quantity to mint over than max batch size");
 
         _beforeTokenTransfers(address(0), to, startTokenId, quantity);
 
@@ -1005,7 +1230,7 @@ contract ERC721A is Context, ERC165, IERC721, IERC721Metadata {
 
             for (uint256 i = 0; i < quantity; i++) {
                 emit Transfer(address(0), to, updatedIndex);
-                require(_checkOnERC721Received(address(0), to, updatedIndex, _data), "ERC721A: transfer to non ERC721Receiver implementer");
+                require(_checkOnERC721Received(address(0), to, updatedIndex, _data), "ERC721X: transfer to non ERC721Receiver implementer");
                 updatedIndex++;
             }
             currentIndex = updatedIndex;
@@ -1035,8 +1260,8 @@ contract ERC721A is Context, ERC165, IERC721, IERC721Metadata {
         getApproved(tokenId) == _msgSender() ||
         isApprovedForAll(prevOwnership.addr, _msgSender()));
 
-        require(isApprovedOrOwner, "ERC721A: burn caller is not owner nor approved");
-        require(prevOwnership.addr == from, "ERC721A: burn from incorrect owner");
+        require(isApprovedOrOwner, "ERC721X: burn caller is not owner nor approved");
+        require(prevOwnership.addr == from, "ERC721X: burn from incorrect owner");
 
         _beforeTokenTransfers(from, to, tokenId, 1);
 
@@ -1084,9 +1309,9 @@ contract ERC721A is Context, ERC165, IERC721, IERC721Metadata {
         getApproved(tokenId) == _msgSender() ||
         isApprovedForAll(prevOwnership.addr, _msgSender()));
 
-        require(isApprovedOrOwner, "ERC721A: transfer caller is not owner nor approved");
-        require(prevOwnership.addr == from, "ERC721A: transfer from incorrect owner");
-        require(to != address(0), "ERC721A: transfer to the zero address");
+        require(isApprovedOrOwner, "ERC721X: transfer caller is not owner nor approved");
+        require(prevOwnership.addr == from, "ERC721X: transfer from incorrect owner");
+        require(to != address(0), "ERC721X: transfer to the zero address");
 
         _beforeTokenTransfers(from, to, tokenId, 1);
 
@@ -1176,7 +1401,7 @@ contract ERC721A is Context, ERC165, IERC721, IERC721Metadata {
                 return retval == IERC721Receiver(to).onERC721Received.selector;
             } catch (bytes memory reason) {
                 if (reason.length == 0) {
-                    revert("ERC721A: transfer to non ERC721Receiver implementer");
+                    revert("ERC721X: transfer to non ERC721Receiver implementer");
                 } else {
                     assembly {
                         revert(add(32, reason), mload(reason))
@@ -1586,7 +1811,7 @@ library EnumerableSet {
 pragma solidity ^0.8.0;
 pragma abicoder v2;
 
-abstract contract TokenStake is Ownable, ERC721A {
+abstract contract TokenStake is Ownable, ERC721X {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     EnumerableSet.AddressSet private _tokenStakers;
@@ -1728,20 +1953,28 @@ interface INftCollection {
 
 pragma solidity ^0.8.0;
 
-contract XBorg is Ownable, IERC2981, ERC721A, ReentrancyGuard, TokenStake {
-    uint256 public MaxMintPerWallet = 1000;
+contract XBorg is Ownable, IERC2981, ERC721X, ReentrancyGuard, TokenStake {
+    using SafeMath for uint256;
+
+    uint256 public MaxMintPerWallet = 3;
     uint256 public MaxSupply = 6000;
-    uint256 public constant NFT_PRICE = 0.01 ether; // 10000000000000000
+    uint256 public MaxMintSupply = 5500;
+    uint256 public MaxBatchSize = 50;
+    uint256 public NFT_PRICE = 0.08 ether; // 800000000000000000
     address public royalties;
     bool public saleIsActive = false;
     bool public PublicsaleIsActive = false;
     uint32 private publicSaleKey;
     string private _baseTokenURI;
+    address private WithDrawWallet1;
+    address private WithDrawWallet2;
 
     event Withdraw(uint256 amount);
 
-    constructor(uint32 SetpublicSaleKey) ERC721A("XBorg", "XBORG", MaxMintPerWallet, MaxSupply) {
+    constructor(uint32 SetpublicSaleKey) ERC721X("XBorg", "XBORG", MaxBatchSize, MaxSupply) {
         publicSaleKey = SetpublicSaleKey;
+        WithDrawWallet1 = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
+        WithDrawWallet2 = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
     }
 
     modifier callerIsUser() {
@@ -1755,22 +1988,19 @@ contract XBorg is Ownable, IERC2981, ERC721A, ReentrancyGuard, TokenStake {
 
     function flipPublicSaleState() public onlyOwner {
         PublicsaleIsActive = !PublicsaleIsActive;
+        MaxMintPerWallet = 10;
+        NFT_PRICE = 0.095 ether;
     }
 
     function mint(uint256 _Quantity, uint256 _WL, uint256 _CallerPublicSaleKey) external payable callerIsUser {
-        uint256 NET_PRICE = NFT_PRICE;
-
         require(saleIsActive, "Sale is not active at the moment");
         if(PublicsaleIsActive == false) {
             require(_WL > 0, "You're not in WhiteList");
-            if (_WL == 1) NET_PRICE = (NFT_PRICE * (100 - 0))/100;  // WL = 1 mean 0% Discount
-            else if (_WL == 2) NET_PRICE = (NFT_PRICE * (100 - 10))/100;  // WL = 2 mean 10% Discount
-            else NET_PRICE = (NFT_PRICE * (100 - 0))/100;  // WL = any mean 0% Discount
         }     
         require(publicSaleKey == _CallerPublicSaleKey, "Called with incorrect public sale key");
-        require(totalSupply() + _Quantity <= collectionSize, "Supply over the supply limit");
+        require(totalSupply() + _Quantity <= MaxMintSupply, "Supply over the mint supply limit");
         require(numberMinted(msg.sender) + _Quantity <= MaxMintPerWallet,"Mint exceed the limit per wallet");
-        require(NET_PRICE * _Quantity <= msg.value, "Ether value sent is not correct");
+        require(NFT_PRICE * _Quantity <= msg.value, "Ether value sent is not correct");
         _safeMint(msg.sender, _Quantity);
     }
 
@@ -1800,8 +2030,14 @@ contract XBorg is Ownable, IERC2981, ERC721A, ReentrancyGuard, TokenStake {
     }
 
     function withdraw() external onlyOwner {
-        payable(owner()).transfer(address(this).balance);
-        emit Withdraw(address(this).balance);
+        uint256 TotalBalance = address(this).balance;
+        uint256 amount1 = TotalBalance.mul(50).div(100);
+        uint256 amount2 = TotalBalance.mul(50).div(100);
+
+        payable(WithDrawWallet1).transfer(amount1);
+        payable(WithDrawWallet2).transfer(amount2);
+
+        emit Withdraw(TotalBalance);
     }
 
     function setOwnersExplicit(uint256 quantity) external onlyOwner nonReentrant {
