@@ -1189,8 +1189,9 @@ contract ERC721X is Context, ERC165, IERC721, IERC721Metadata {
      */
     function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {
         require(_exists(tokenId), "ERC721X: operator query for nonexistent token");
-        address owner = ERC721X.ownerOf(tokenId);
-        return (spender == owner || isApprovedForAll(owner, spender) || getApproved(tokenId) == spender);
+        TokenOwnership memory prevOwnership = ownershipOf(tokenId);
+        return(spender == prevOwnership.addr || getApproved(tokenId) == spender || isApprovedForAll(prevOwnership.addr, spender));
+        //return (spender == owner || isApprovedForAll(owner, spender) || getApproved(tokenId) == spender);
     }
 
     function _safeMint(address to, uint256 quantity) internal {
@@ -1256,11 +1257,11 @@ contract ERC721X is Context, ERC165, IERC721, IERC721Metadata {
         address to = 0x000000000000000000000000000000000000dEaD;
         TokenOwnership memory prevOwnership = ownershipOf(tokenId);
 
-        bool isApprovedOrOwner = (_msgSender() == prevOwnership.addr ||
-        getApproved(tokenId) == _msgSender() ||
-        isApprovedForAll(prevOwnership.addr, _msgSender()));
+        //bool isApprovedOrOwner = (_msgSender() == prevOwnership.addr ||
+        //getApproved(tokenId) == _msgSender() ||
+        //isApprovedForAll(prevOwnership.addr, _msgSender()));
 
-        require(isApprovedOrOwner, "ERC721X: burn caller is not owner nor approved");
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721X: burn caller is not owner nor approved");
         require(prevOwnership.addr == from, "ERC721X: burn from incorrect owner");
 
         _beforeTokenTransfers(from, to, tokenId, 1);
@@ -1305,11 +1306,11 @@ contract ERC721X is Context, ERC165, IERC721, IERC721Metadata {
     ) internal virtual {
         TokenOwnership memory prevOwnership = ownershipOf(tokenId);
 
-        bool isApprovedOrOwner = (_msgSender() == prevOwnership.addr ||
-        getApproved(tokenId) == _msgSender() ||
-        isApprovedForAll(prevOwnership.addr, _msgSender()));
+        //bool isApprovedOrOwner = (_msgSender() == prevOwnership.addr ||
+        //getApproved(tokenId) == _msgSender() ||
+        //isApprovedForAll(prevOwnership.addr, _msgSender()));
 
-        require(isApprovedOrOwner, "ERC721X: transfer caller is not owner nor approved");
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721X: transfer caller is not owner nor approved");
         require(prevOwnership.addr == from, "ERC721X: transfer from incorrect owner");
         require(to != address(0), "ERC721X: transfer to the zero address");
 
@@ -1896,7 +1897,7 @@ abstract contract TokenStake is Ownable, ERC721X {
         for (uint256 i = 0; i < tokenIds.length; i++) {
             require(_stakedTokens[tokenIds[i]] != address(0), "TokenStake: not restakeable");
             if (newStaker != address(0)) {
-                //require(_isApprovedOrOwner(newStaker, tokenIds[i]), "TokenStake: Staker not approved");
+                require(_isApprovedOrOwner(newStaker, tokenIds[i]), "TokenStake: Staker not approved");
             }
             _stakedTokens[tokenIds[i]] = newStaker;
         }
@@ -1959,24 +1960,27 @@ contract XBorg is Ownable, IERC2981, ERC721X, ReentrancyGuard, TokenStake {
     uint256 public MaxMintPerWallet = 3;
     uint256 public MaxSupply = 6000;
     uint256 public MaxMintSupply = 5500;
-    uint256 public MaxBatchSize = 50;
-    uint256 public NFT_PRICE = 0.08 ether; // 800000000000000000
+    uint256 public MaxBatchSize = 100;
+    uint256 public NFT_PRICE = 0.08 ether;
     address public royalties;
+    bool public isMetadataLocked;
     bool public saleIsActive = false;
     bool public PublicsaleIsActive = false;
     uint32 private publicSaleKey;
     string private _baseTokenURI;
     uint256 private WL_Class;
-    address private WithDrawWallet1;
-    address private WithDrawWallet2;
+    address private constant WithDrawWallet1 = 0x592d4aE36dB7D196E0caD2c3083431B392f95e78;
+    address private constant WithDrawWallet2 = 0xC0c464514d6397b7b529A3650697Fd5967b5A892;
+    
 
+    event LockMetadata();
     event Withdraw(uint256 amount);
 
-    constructor(uint32 SetpublicSaleKey, uint32 SetWL_Class) ERC721X("XBorg", "XBORG", MaxBatchSize, MaxSupply) {
+    constructor(uint32 SetpublicSaleKey, uint32 SetWL_Class, address _royalty, string memory baseURI) ERC721X("XBorg", "XBORG", MaxBatchSize, MaxSupply) {
         publicSaleKey = SetpublicSaleKey;
         WL_Class = SetWL_Class;
-        WithDrawWallet1 = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
-        WithDrawWallet2 = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
+        royalties = _royalty;
+        _baseTokenURI = baseURI;
     }
 
     modifier callerIsUser() {
@@ -2006,7 +2010,7 @@ contract XBorg is Ownable, IERC2981, ERC721X, ReentrancyGuard, TokenStake {
         _safeMint(msg.sender, _Quantity);
     }
 
-    function Ownermint(uint256 _Quantity) external onlyOwner {     
+    function OwnerMint(uint256 _Quantity) external onlyOwner {     
         require(totalSupply() + _Quantity <= collectionSize, "Supply over the supply limit");
         _safeMint(msg.sender, _Quantity);
     }
@@ -2019,15 +2023,24 @@ contract XBorg is Ownable, IERC2981, ERC721X, ReentrancyGuard, TokenStake {
         _burn(msg.sender, tokenId);
     }
 
-    function setPublicSaleKey(uint32 key) external onlyOwner {
+    function setSaleConfig(uint32 key, uint256 MaxMint) external onlyOwner {
         publicSaleKey = key;
+        MaxMintSupply = MaxMint;
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
         return _baseTokenURI;
     }
 
+    function lockMetadata() external onlyOwner {
+        require(!isMetadataLocked, "Contract is locked");
+        require(bytes(_baseTokenURI).length > 0, "BaseUri not set");
+        isMetadataLocked = true;
+        emit LockMetadata();
+    }
+
     function setBaseURI(string calldata baseURI) external onlyOwner {
+        require(!isMetadataLocked, "Contract is locked");
         _baseTokenURI = baseURI;
     }
 
